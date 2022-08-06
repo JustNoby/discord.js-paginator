@@ -143,29 +143,29 @@ class Paginator {
      * @returns {{interaction: {interactionType: InteractionType, client: Client, channel: TextBasedChannel, user: User, guild: Guild, command: CommandInteraction | null, createdAt: Date, interactionId: String}, paginator: {pages: Page[], time: number, author_only: boolean, use_butons: boolean, disable_after_timeout: boolean, remove_after_timeout: boolean, messageId: string}}}
      */
     data() {
-    return {
-        interaction: {
-            interactionType: this.interaction.type,
-            client: this.interaction.client,
-            channel: this.interaction.channel,
-            user: this.interaction.user,
-            guild: this.interaction.guild,
-            command: this.interaction.command || null,
-            createdAt: this.interaction.createdAt,
-            interactionId: this.interaction.id
-        },
-        paginator: {
-            pages: this.embeds,
-            time: this.time,
-            author_only: this.author_only,
-            use_butons: this.use_buttons,
-            use_select: this.use_select,
-            disable_after_timeout: this.disable_after_timeout,
-            remove_after_timeout: this.remove_after_timeout,
-            messageId: this.msgid
+        return {
+            interaction: {
+                interactionType: this.interaction.type,
+                client: this.interaction.client,
+                channel: this.interaction.channel,
+                user: this.interaction.user,
+                guild: this.interaction.guild,
+                command: this.interaction.command || null,
+                createdAt: this.interaction.createdAt,
+                interactionId: this.interaction.id
+            },
+            paginator: {
+                pages: this.embeds,
+                time: this.time,
+                author_only: this.author_only,
+                use_butons: this.use_buttons,
+                use_select: this.use_select,
+                disable_after_timeout: this.disable_after_timeout,
+                remove_after_timeout: this.remove_after_timeout,
+                messageId: this.msgid
+            }
         }
     }
-}
 }
 
 module.exports = Paginator;
