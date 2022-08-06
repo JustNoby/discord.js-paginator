@@ -12,7 +12,9 @@
   },
   "keywords": [
     "discord.js",
-    "paginator"
+    "paginator",
+    "discord-embeds",
+    "embeds"
   ],
   "author": "JustNoby15",
   "license": "ISC",
