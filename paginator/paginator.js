@@ -1,7 +1,7 @@
 const { CommandInteraction, ButtonInteraction, ContextMenuCommandInteraction, AutocompleteInteraction, UserContextMenuCommandInteraction, ModalSubmitInteraction, SelectMenuInteraction, MessageContextMenuCommandInteraction, Message, ActionRowBuilder, InteractionType, Client, User, Guild } = require('discord.js');
 const { returnInitialButtons, returnDisabledButtons, returnUpdatedButtons, createSelectMenu, EndButtonBuilder } = require('./paginatorSupport');
 const PaginatorError = require('../paginator/paginatorError');
-// {author_only: true, use_buttons: true, use_select: true, disable_after_timeout: true, remove_after_timeout: false}
+
 /**
  * Paginator Class
  */
