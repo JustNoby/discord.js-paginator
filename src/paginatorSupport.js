@@ -15,7 +15,7 @@ class EndButtonBuilder extends ButtonBuilder {
 }
 
 /**
- * Returns the Pagiantor class' initial buttons
+ * Returns the Paginator class' initial buttons
  * @returns {ButtonBuilder[]} A list of buttons
  * 
 */

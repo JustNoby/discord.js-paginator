@@ -1,4 +1,4 @@
-const Page = require('./paginator/page');
-const Paginator = require('./paginator/paginator');
+const Page = require('./src/page');
+const Paginator = require('./src/paginators/componentPaginator');
 
 module.exports = { Page, Paginator };

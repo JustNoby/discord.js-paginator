@@ -1,6 +1,6 @@
 {
   "name": "@justnoby15/discord.js-paginator",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An unofficial Discord.js V14 Paginator",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/JustNoby/discord.js-paginator#readme",
   "dependencies": {
-    "discord.js": "^14.1.2"
+    "discord.js": "^14.2.0"
   }
 }

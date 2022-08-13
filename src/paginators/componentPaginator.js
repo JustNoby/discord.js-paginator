@@ -1,9 +1,10 @@
 const { CommandInteraction, ButtonInteraction, ContextMenuCommandInteraction, AutocompleteInteraction, UserContextMenuCommandInteraction, ModalSubmitInteraction, SelectMenuInteraction, MessageContextMenuCommandInteraction, Message, ActionRowBuilder, InteractionType, Client, User, Guild } = require('discord.js');
-const { returnInitialButtons, returnDisabledButtons, returnUpdatedButtons, createSelectMenu, EndButtonBuilder } = require('./paginatorSupport');
-const PaginatorError = require('../paginator/paginatorError');
+const Page = require('../page');
+const { returnInitialButtons, returnDisabledButtons, returnUpdatedButtons, createSelectMenu, EndButtonBuilder } = require('../paginatorSupport');
+const PaginatorError = require('../paginatorError');
 
 /**
- * Paginator Class
+ * Interaction Paginator Class
  */
 class Paginator {
     /**
@@ -11,7 +12,7 @@ class Paginator {
      * @param {CommandInteraction | ButtonInteraction | SelectMenuInteraction | UserContextMenuCommandInteraction | ModalSubmitInteraction | MessageContextMenuCommandInteraction | ContextMenuCommandInteraction | AutocompleteInteraction } interaction Context of Interaction
      * @param {Page[]} embeds A list of embeds
      * @param {Number} seconds Cooldown time
-     * @param {Object} options
+     * @param {Object} options User's custom options for paginator
      * @param {Boolean} [options.author_only = true] Whether the collector responds to the author or not
      * @param {Boolean} [options.use_buttons = true] Whether the Paginator uses buttons
      * @param {Boolean} [options.use_select = true] Whether the Paginator uses a select menu
@@ -22,12 +23,12 @@ class Paginator {
         this.interaction = interaction;
         this.embeds = embeds;
         this.time = seconds * 1000;
-        this.author_only = options.use_buttons;
+        this.author_only = options.author_only;
         this.use_buttons = options.use_buttons;
         this.use_select = options.use_select;
         this.disable_after_timeout = options.disable_after_timeout;
         this.remove_after_timeout = options.remove_after_timeout;
-        this.msgid = undefined;
+        this.msgId = undefined;
     }
 
     /**
@@ -42,6 +43,24 @@ class Paginator {
     }
 
     /**
+     * A function that catches all errors you could have based on your inputs (suggested against as Paginator already checks)
+     * @returns {Promise} Returns a promise.
+     */
+    async compileErrors() {
+        return new Promise((resolve, reject) => {
+            if (!this.interaction || !this.embeds) reject("Invalid Parameter: You're missing either interaction or embeds.");
+            if (!(this.interaction.type === InteractionType.ApplicationCommand || InteractionType.ApplicationCommandAutocomplete || InteractionType.MessageComponent || InteractionType.ModalSubmit)) reject("Invalid Interaction: Interaction must be Application Command, Message Component, Modal Submit or a Context Menu interaction");
+            if (this.embeds.length < 2) reject("Invalid Pages: Your embeds (Page[]) must be greater than 1.");
+            if (this.time>60_000 || this.time<10_000) reject("Invalid Time: Time shouldn't be greater than 60 or less than 10.");
+            if (this.use_buttons && this.use_select === false) reject("Invalid Build: You must at least have buttons, a select menu, reactions or all three. You can't have neither.");
+            else resolve("No errors compiled.")
+        }).catch(err => {
+            const errMessage = err.split(': ');
+            throw new PaginatorError(errMessage[0] + ":", errMessage[1])
+        });
+    }
+
+    /**
      * To run paginator
      * @returns {Promise}
      */
@@ -52,22 +71,20 @@ class Paginator {
         let time = this.time;
         let userFilter, components = [];
 
-        if (!interaction || !embeds) throw new PaginatorError("Invalid Paramter", "You're missing either interaction or embeds.");
+        if (!interaction || !embeds) throw new PaginatorError("Invalid Parameter", "You're missing either interaction or embeds.");
         if (!(interaction.type === InteractionType.ApplicationCommand || InteractionType.ApplicationCommandAutocomplete || InteractionType.MessageComponent || InteractionType.ModalSubmit)) throw new PaginatorError("Invalid Interaction", "Interaction must be Application Command, Message Component, Modal Submit or a Context Menu interaction");
         if (embeds.length < 2) throw new PaginatorError("Invalid Pages", "Your embeds (Page[]) must be greater than 1.");
         if (time>60_000 || time<10_000) throw new PaginatorError("Invalid Time", "Time shouldn't be greater than 60 or less than 10.");
-        if ([this.use_buttons, this.use_select] === [true, true]) throw new PaginatorError("Invalid Build", "You must at least have buttons, a select menu or both. You can't have neither.");
+        if (this.use_buttons && this.use_select === false) throw new PaginatorError("Invalid Build", "You must at least have buttons, a select menu, reactions or all three. You can't have neither.");
 
         if (this.author_only) userFilter = (i) => i.user.id === interaction.user.id;
-        if (this.author_only) userFilter = undefined
+        if (this.author_only === false) userFilter = undefined
 
         let index = 0;
 
         if (this.use_buttons) components.push(new ActionRowBuilder().setComponents(returnInitialButtons()));      
         if (this.use_select && this.use_buttons === true) components.push(new ActionRowBuilder().setComponents(createSelectMenu(index, embeds)));
         if (this.use_select && this.use_buttons === false) components.push(new ActionRowBuilder().setComponents(createSelectMenu(index, embeds)), new ActionRowBuilder().setComponents(new EndButtonBuilder()));
-
-
 
         const data = {
             content: embeds[index].content,
@@ -81,11 +98,11 @@ class Paginator {
          */
         const msg = interaction.replied ? await interaction.editReply(data) || await interaction.followUp(data) : await interaction.reply(data);
 
-        this.msgid = msg.id;
+        this.msgId = msg.id;
 
         const col = msg.createMessageComponentCollector({
             filter: userFilter,
-            time
+            time: time
         });
 
         col.on('collect', (interaction) => {
@@ -140,7 +157,7 @@ class Paginator {
 
     /**
      * Returns the Data the Paginator collected
-     * @returns {{interaction: {interactionType: InteractionType, client: Client, channel: TextBasedChannel, user: User, guild: Guild, command: CommandInteraction | null, createdAt: Date, interactionId: String}, paginator: {pages: Page[], time: number, author_only: boolean, use_butons: boolean, disable_after_timeout: boolean, remove_after_timeout: boolean, messageId: string}}}
+     * @returns {{interaction: {interactionType: InteractionType, client: Client, channel: TextBasedChannel, user: User, guild: Guild, command: CommandInteraction | null, createdAt: Date, interactionId: String}, paginator: {pages: Page[], time: number, author_only: boolean, use_buttons: boolean, disable_after_timeout: boolean, remove_after_timeout: boolean, messageId: string}}}
      */
     data() {
         return {
@@ -158,11 +175,11 @@ class Paginator {
                 pages: this.embeds,
                 time: this.time,
                 author_only: this.author_only,
-                use_butons: this.use_buttons,
+                use_buttons: this.use_buttons,
                 use_select: this.use_select,
                 disable_after_timeout: this.disable_after_timeout,
                 remove_after_timeout: this.remove_after_timeout,
-                messageId: this.msgid
+                messageId: this.msgId
             }
         }
     }
