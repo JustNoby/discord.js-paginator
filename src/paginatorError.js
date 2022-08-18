@@ -9,3 +9,5 @@ class PaginatorError extends Error {
         this.name = `PaginatorError [${name}]`;
     }
 }
+
+module.exports = PaginatorError;
