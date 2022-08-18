@@ -1,7 +1,7 @@
 class PaginatorError extends Error {
     /**
-     * @param {String} name
-     * @param {String} message 
+     * @param {string} name
+     * @param {string} message 
      */
     constructor(name, message) {
         super();
@@ -9,5 +9,3 @@ class PaginatorError extends Error {
         this.name = `PaginatorError [${name}]`;
     }
 }
-
-module.exports = PaginatorError;

@@ -16,8 +16,10 @@ class Paginator {
      * @param {Boolean} [options.author_only = true] Whether the collector responds to the author or not
      * @param {Boolean} [options.use_buttons = true] Whether the Paginator uses buttons
      * @param {Boolean} [options.use_select = true] Whether the Paginator uses a select menu
+     * @param {Boolean} [options.edit_reply = false] Whether initial message edits the reply
      * @param {Boolean} [options.disable_after_timeout = true] Whether components disable after collector ends
      * @param {Boolean} [options.remove_after_timeout = true] Whether  components remove after collector ends
+     * @param {Boolean} [options.delete_after_timeout = false] Whether the message deletes after collector ends
      */
     constructor(interaction, embeds, seconds = 60, options = {}) {
         this.interaction = interaction;
@@ -26,9 +28,12 @@ class Paginator {
         this.author_only = options.author_only;
         this.use_buttons = options.use_buttons;
         this.use_select = options.use_select;
+        this.edit_reply = options.edit_reply;
         this.disable_after_timeout = options.disable_after_timeout;
         this.remove_after_timeout = options.remove_after_timeout;
+        this.delete_after_timeout = options.delete_after_timeout;
         this.msgId = undefined;
+        this.formatOptions();
     }
 
     /**
@@ -38,8 +43,10 @@ class Paginator {
         if (this.author_only === undefined) this.author_only = true;
         if (this.use_buttons === undefined) this.use_buttons = true;
         if (this.use_select === undefined) this.use_select = true;
+        if (this.edit_reply === undefined) this.edit_reply = false;
         if (this.disable_after_timeout === undefined) this.disable_after_timeout = true;
         if (this.remove_after_timeout === undefined) this.remove_after_timeout = false;
+        if (this.delete_after_timeout === undefined) this.delete_after_timeout = false;
     }
 
     /**
@@ -52,7 +59,7 @@ class Paginator {
             if (!(this.interaction.type === InteractionType.ApplicationCommand || InteractionType.ApplicationCommandAutocomplete || InteractionType.MessageComponent || InteractionType.ModalSubmit)) reject("Invalid Interaction: Interaction must be Application Command, Message Component, Modal Submit or a Context Menu interaction");
             if (this.embeds.length < 2) reject("Invalid Pages: Your embeds (Page[]) must be greater than 1.");
             if (this.time>60_000 || this.time<10_000) reject("Invalid Time: Time shouldn't be greater than 60 or less than 10.");
-            if (this.use_buttons && this.use_select === false) reject("Invalid Build: You must at least have buttons, a select menu, reactions or all three. You can't have neither.");
+            if (this.use_buttons && this.use_select === false) reject("Invalid Build: You must at least have buttons, a select menu or both. You can't have neither.");
             else resolve("No errors compiled.")
         }).catch(err => {
             const errMessage = err.split(': ');
@@ -75,7 +82,7 @@ class Paginator {
         if (!(interaction.type === InteractionType.ApplicationCommand || InteractionType.ApplicationCommandAutocomplete || InteractionType.MessageComponent || InteractionType.ModalSubmit)) throw new PaginatorError("Invalid Interaction", "Interaction must be Application Command, Message Component, Modal Submit or a Context Menu interaction");
         if (embeds.length < 2) throw new PaginatorError("Invalid Pages", "Your embeds (Page[]) must be greater than 1.");
         if (time>60_000 || time<10_000) throw new PaginatorError("Invalid Time", "Time shouldn't be greater than 60 or less than 10.");
-        if (this.use_buttons && this.use_select === false) throw new PaginatorError("Invalid Build", "You must at least have buttons, a select menu, reactions or all three. You can't have neither.");
+        if (this.use_buttons && this.use_select === false) throw new PaginatorError("Invalid Build", "You must at least have buttons, a select menu or both. You can't have neither.");
 
         if (this.author_only) userFilter = (i) => i.user.id === interaction.user.id;
         if (this.author_only === false) userFilter = undefined
@@ -93,10 +100,9 @@ class Paginator {
             fetchReply: true
         };
 
-        /**
-         * @type {Message}
-         */
-        const msg = interaction.replied ? await interaction.editReply(data) || await interaction.followUp(data) : await interaction.reply(data);
+        let msg;
+        /** @type {Message}*/
+        if (!this.edit_reply) {msg = interaction.replied ? await interaction.followUp(data).catch(console.error) : await interaction.reply(data).catch(console.error);} else if (this.edit_reply) {msg = await interaction.editReply(data).catch(console.error)}
 
         this.msgId = msg.id;
 
@@ -152,12 +158,16 @@ class Paginator {
             await interaction.editReply({
                 components: components
             });
+
+            if (this.delete_after_timeout) {
+                await msg.delete().catch(err => console.error(err));
+            }
         });
     }
 
     /**
      * Returns the Data the Paginator collected
-     * @returns {{interaction: {interactionType: InteractionType, client: Client, channel: TextBasedChannel, user: User, guild: Guild, command: CommandInteraction | null, createdAt: Date, interactionId: String}, paginator: {pages: Page[], time: number, author_only: boolean, use_buttons: boolean, disable_after_timeout: boolean, remove_after_timeout: boolean, messageId: string}}}
+     * @returns {{interaction: {interactionType: InteractionType, client: Client, channel: TextBasedChannel, user: User, guild: Guild, command: CommandInteraction | null, createdAt: Date, interactionId: string}, paginator: {pages: Page[], time: number, author_only: boolean, use_buttons: boolean, disable_after_timeout: boolean, remove_after_timeout: boolean, messageId: string}}}
      */
     data() {
         return {
@@ -177,8 +187,10 @@ class Paginator {
                 author_only: this.author_only,
                 use_buttons: this.use_buttons,
                 use_select: this.use_select,
+                edit_reply: this.edit_reply,
                 disable_after_timeout: this.disable_after_timeout,
                 remove_after_timeout: this.remove_after_timeout,
+                delete_after_timeout: this.delete_after_timeout,
                 messageId: this.msgId
             }
         }
