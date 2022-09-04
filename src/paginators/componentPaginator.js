@@ -10,19 +10,19 @@ class Paginator {
     /**
      * To construct a Paginator based off of a InteractionType, A list of Pages and a time in seconds
      * @param {CommandInteraction | ButtonInteraction | SelectMenuInteraction | UserContextMenuCommandInteraction | ModalSubmitInteraction | MessageContextMenuCommandInteraction | ContextMenuCommandInteraction | AutocompleteInteraction } interaction Context of Interaction
-     * @param {Page[]} embeds A list of embeds
-     * @param {Number} seconds Cooldown time
-     * @param {Object} options User's custom options for paginator
-     * @param {Boolean} [options.authorOnly = true] Whether the collector responds to the author or not
-     * @param {Boolean} [options.useButtons = true] Whether the Paginator uses buttons
-     * @param {Boolean} [options.useSelect = true] Whether the Paginator uses a select menu
-     * @param {Boolean} [options.deferReply = false]
-     * @param {Boolean} [options.editReply = false] Whether initial message edits the reply
-     * @param {Boolean} [options.disableAfterTimeout = true] Whether components disable after collector ends
-     * @param {Boolean} [options.removeAfterTimeout = true] Whether  components remove after collector ends
-     * @param {Boolean} [options.deleteAfterTimeout = false] Whether the message deletes after collector ends
+     * @param {Page[]} embeds List of Pages
+     * @param {Number} seconds Collector Timeout time in seconds
+     * @param {object} options User's custom options for paginator
+     * @param {boolean} [options.authorOnly = true] Whether the collector responds to the author or not
+     * @param {boolean} [options.useButtons = true] Whether the Paginator uses buttons
+     * @param {boolean} [options.useSelect = true] Whether the Paginator uses a select menu
+     * @param {boolean} [options.deferReply = false] Whether the Paginator defers the initial reply
+     * @param {boolean} [options.editReply = false] Whether initial message edits the reply
+     * @param {boolean} [options.disableAfterTimeout = true] Whether components disable after collector ends
+     * @param {boolean} [options.removeAfterTimeout = true] Whether  components remove after collector ends
+     * @param {boolean} [options.deleteAfterTimeout = false] Whether the message deletes after collector ends
      */
-    constructor(interaction, embeds, seconds = 60, options = {}) {
+    constructor(interaction, embeds = [], seconds = 60, options = {}) {
         this.interaction = interaction;
         this.embeds = embeds;
         this.time = seconds * 1000;
@@ -34,8 +34,108 @@ class Paginator {
         this.disableAfterTimeout = options.disableAfterTimeout;
         this.removeAfterTimeout = options.removeAfterTimeout;
         this.deleteAfterTimeout = options.deleteAfterTimeout;
-        this.msgId = undefined;
+        this.msg = undefined;
         this.formatOptions();
+    }
+
+    /**
+     * Adds to embeds of Paginator
+     * @param {Page | Page[]} embeds Adds to the current number of Pages
+     */
+    addPages(embeds) {
+        if (embeds.length) this.embeds = this.embeds.concat(embeds);
+        else this.embeds.push(embeds);
+        return this;
+    }
+
+    /**
+     * Sets embeds of Paginator
+     * @param {Page[]} embeds List of pages
+     */
+    setPages(embeds) {
+        this.embeds = embeds;
+        return this;
+    }
+
+    /**
+     * Sets time of Paginator
+     * @param {number} seconds Collector Timeout time in seconds
+     */
+    setSeconds(seconds) {
+        this.time = seconds * 1000;
+        return this;
+    }
+
+    /**
+     * Sets authorOnly of Paginator
+     * @param {boolean} bool Whether the collector responds to the author or not
+     */
+    setAuthorOnly(bool) {
+        this.authorOnly = bool;
+        return this;
+    }
+
+    /**
+     * Sets useButtons of Paginator
+     * @param {boolean} bool Whether the Paginator uses buttons
+     */
+    setUseButtons(bool) {
+        this.useButtons = bool;
+        return this;
+    }
+
+    /**
+     * Sets useSelect of Paginator
+     * @param {boolean} bool Whether the Paginator uses a select menu
+     */
+    setUseSelect(bool) {
+        this.useSelect = bool;
+        return this;
+    }
+
+    /**
+     * Sets deferReply of Paginator
+     * @param {boolean} bool Whether the Paginator defers the initial reply
+     */
+    setDeferReply(bool) {
+        this.deferReply = bool;
+        return this;
+    }
+
+    /**
+     * Sets editReply of Paginator
+     * @param {boolean} bool Whether initial message edits the reply
+     */
+    setEditReply(bool) {
+        this.editReply = bool;
+        return this;
+    }
+
+    /**
+     * Sets disableAfterTimeout of Paginator
+     * @param {boolean} bool Whether components disable after collector ends
+     */
+    setDisableAfterTimeout(bool) {
+        this.disableAfterTimeout = bool;
+        return this;
+    }
+
+    /**
+     * Sets removeAfterTimeout of Paginator
+     * @param {boolean} bool Whether  components remove after collector ends
+     */
+    setRemoveAfterTimeout(bool) {
+        this.removeAfterTimeout = bool;
+        return this;
+    }
+
+    /**
+     * Sets deleteAfterTimeout of Paginator
+     * @param {boolean} bool Whether the message deletes after collector ends
+     */
+    setDeleteAfterTimeout(bool) {
+        this.deleteAfterTimeout = bool;
+        return this;
     }
 
     /**
@@ -108,7 +208,7 @@ class Paginator {
         let msg;
         if (this.editReply) msg = await interaction.editReply(data).catch(console.error); else if (!this.editReply) {msg = interaction.replied ? await interaction.followUp(data).catch(console.error) : await interaction.reply(data).catch(console.error);}
 
-        this.msgId = msg.id;
+        this.msg = msg;
 
         const col = msg.createMessageComponentCollector({ filter: userFilter, time: time });
 
@@ -160,9 +260,9 @@ class Paginator {
             if (this.removeAfterTimeout === true) components = [];
             else if (this.removeAfterTimeout === false) components = [row1, row2];
 
-            await interaction.editReply({
+            await msg.edit({
                 components: components
-            });
+            }).catch(console.error);
 
             if (this.deleteAfterTimeout) await msg.delete().catch(err => console.error(err));
         });
@@ -187,6 +287,7 @@ class Paginator {
             paginator: {
                 pages: this.embeds,
                 time: this.time,
+                message: this.msg,
                 authorOnly: this.authorOnly,
                 useButtons: this.useButtons,
                 useSelect: this.useSelect,
@@ -195,7 +296,7 @@ class Paginator {
                 disableAfterTimeout: this.disableAfterTimeout,
                 removeAfterTimeout: this.removeAfterTimeout,
                 deleteAfterTimeout: this.deleteAfterTimeout,
-                messageId: this.msgId
+                messageId: this.msg.id
             }
         }
     }

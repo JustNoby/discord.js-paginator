@@ -3,7 +3,7 @@ const Page = require('./page');
 
 class EndButtonBuilder extends ButtonBuilder {
     constructor() {
-        super()
+        super();
         this.data = {
             type: 2,
             emoji: { name: '❌' },
