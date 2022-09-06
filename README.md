@@ -218,9 +218,9 @@ const paginator = new Paginator(..., pages, ...);
     const paginator = new Paginator(interaction, pages, 15).setDeleteAfterTimeout(true);
     ```
  ##### Optimal Method Usage
- ```js
-const paginator = new Paginator(interaction).setPages([...]).setSeconds(15).setAuthorOnly(false);
-```
+    ```js
+    const paginator = new Paginator(interaction).setPages([...]).setSeconds(15).setAuthorOnly(false);
+    ```
 - `formatOptions()`: Formats all the values you put into the options parameter. Necessary for Paginator process, however user is not inquired to use this function, the paginator already does it for you.
     - What does it do exactly? It simply checks for undefined properties and sets them to default.
 - `async compileErrors()`: A function that catches all errors you could have based on your inputs.
