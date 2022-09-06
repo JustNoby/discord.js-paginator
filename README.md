@@ -217,7 +217,7 @@ const paginator = new Paginator(..., pages, ...);
     ```js
     const paginator = new Paginator(interaction, pages, 15).setDeleteAfterTimeout(true);
     ```
- ##### Optimal Method Usage
+- `Optimal Method Usage`
     ```js
     const paginator = new Paginator(interaction).setPages([...]).setSeconds(15).setAuthorOnly(false);
     ```
