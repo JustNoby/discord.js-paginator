@@ -231,7 +231,7 @@ const paginator = new Paginator(..., pages, ...);
 - `async run()`: The Paginator
     - [Required](#required)
     - [Optional](#optional)
-    - [Attributes](#attributes)
+    - [Output](#attributes)
 - `data()`: Returns all Paginator [Attributes](#attributes)
 
 ### Attributes
