@@ -252,16 +252,16 @@ Data you can access using the Paginator's `data()` function.
     },
     paginator: {
         pages: Page[],
-        time: number,
+        time: Number,
         message: Message,
-        authorOnly: boolean,
-        useButtons: boolean,
-        useSelect: boolean,
-        deferReply: boolean,
-        editReply: boolean,
-        disableAfterTimeout: boolean,
-        removeAfterTimeout: boolean,
-        deleteAfterTimeout: boolean,
+        authorOnly: Boolean,
+        useButtons: Boolean,
+        useSelect: Boolean,
+        deferReply: Boolean,
+        editReply: Boolean,
+        disableAfterTimeout: Boolean,
+        removeAfterTimeout: Boolean,
+        deleteAfterTimeout: Boolean,
         messageId: Snowflake
     }
 }
