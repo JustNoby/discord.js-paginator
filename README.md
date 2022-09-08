@@ -261,7 +261,7 @@ Data you can access using the Paginator's `data()` function.
         editReply: boolean,
         disableAfterTimeout: boolean,
         removeAfterTimeout: boolean,
-        deleteAfterTimeout: boolean
+        deleteAfterTimeout: boolean,
         messageId: string
     }
 }
