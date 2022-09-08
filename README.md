@@ -102,12 +102,6 @@ Instead of using list of Embeds offered by discord.js, you use a list of Pages f
 - `embed: EmbedBuilder | null`: A discord.js embed
 - `content: string | null`: The content of the Page (the message)
 
-### Methods
-
-- `setTitle(content: string)`: Sets title of a page
-- `setEmbed(embed: EmbedBuilder)`: Sets the embed of a page
-- `setMessageContent(content: string)`: Sets the message content of a page
-
 #### Constructor Example
 
 ```js
@@ -120,6 +114,12 @@ const pages = [
 const paginator = new Paginator(..., pages, ...);
 await paginator.run().catch(err => console.log(err));
 ```
+
+### Methods
+
+- `setTitle(content: string)`: Sets title of a page
+- `setEmbed(embed: EmbedBuilder)`: Sets the embed of a page
+- `setMessageContent(content: string)`: Sets the message content of a page
 
 #### Methods Example
 
