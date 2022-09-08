@@ -112,7 +112,6 @@ const pages = [
 ]
 
 const paginator = new Paginator(..., pages, ...);
-await paginator.run().catch(err => console.log(err));
 ```
 
 ### Methods
