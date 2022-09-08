@@ -170,7 +170,7 @@ const paginator = new Paginator(..., pages, ...);
         new Page("Embed 3", new EmbedBuilder().setDescription("Three"), "Page #3")
     ]
 
-    const paginator = new Paginator(interaction, pages, 15).addPages(new Page().setTitle("Newest Page").setEmbed(new EmbedBuilder().setDescription("Four")));
+    const paginator = new Paginator(interaction, pages, 15).addPages(new Page().setTitle("New Page").setEmbed(new EmbedBuilder().setDescription("Four"))).addPages([new Page().setTitle("Even Newer Page").setEmbed(new EmbedBuilder().setDescription("Five")), new Page().setTitle("Newest Page").setEmbed(new EmbedBuilder().setDescription("Six"))]);
     ```
 - `setPages(embeds: Page[])`: Sets embeds of Paginator
     ```js
