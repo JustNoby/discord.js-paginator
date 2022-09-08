@@ -246,9 +246,9 @@ Data you can access using the Paginator's `data()` function.
         channel: TextBasedChannel,
         user: User,
         guild: Guild,
-        command: CommandInteraction || null,
-        createdAt: number,
-        interactionId: string
+        command: ApplicationCommand || null,
+        createdAt: Date,
+        interactionId: SnowFlake
     },
     paginator: {
         pages: Page[],
@@ -262,7 +262,7 @@ Data you can access using the Paginator's `data()` function.
         disableAfterTimeout: boolean,
         removeAfterTimeout: boolean,
         deleteAfterTimeout: boolean,
-        messageId: string
+        messageId: Snowflake
     }
 }
 ```
